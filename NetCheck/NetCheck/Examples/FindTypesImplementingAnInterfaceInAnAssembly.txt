@@ -1,0 +1,4 @@
+﻿ var type = typeof(ITestInterface);
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => type.IsAssignableFrom(p));

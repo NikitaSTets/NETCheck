@@ -1,0 +1,39 @@
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using Reflection;
+
+namespace NetCheck
+{
+    internal class Program
+    {
+        private static void Main()
+        {
+            var type = typeof(TestClass2);
+
+            var methods = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                //.Where(p => type.IsAssignableFrom(p))
+                .SelectMany(t => t.GetMethods())
+                .Where(m => m.GetCustomAttributes(typeof(CustomAttribute), false).Length > 0);
+            object[] parametersArray = { "Hello", "World" };
+
+            foreach (var methodInfo in methods)
+            {
+                ExecuteWithReflection(methodInfo, parametersArray);
+            }
+        }
+
+        private static void ExecuteWithReflection(MethodBase methodInfo, object parameterObject = null)
+        {
+            var parameterInfo = methodInfo.GetParameters();
+            var classInstance = Activator.CreateInstance(methodInfo.DeclaringType, null);
+
+            var result = parameterInfo.Length == 0 
+                ? methodInfo.Invoke(classInstance, null)
+                : methodInfo.Invoke(classInstance, new[] { parameterObject });
+
+            Console.WriteLine(result);
+        }
+    }
+}

@@ -1,0 +1,2 @@
+﻿var instance = (TestClass1)Activator.CreateInstance(typeof(TestClass1));
+instance?.Method();
