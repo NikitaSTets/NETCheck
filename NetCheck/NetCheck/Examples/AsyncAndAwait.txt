@@ -1,0 +1,23 @@
+﻿await FooAsync();
+
+RestOfMethod();
+
+as being similar in nature to this:
+
+var t = FooAsync();
+
+var currentContext = SynchronizationContext.Current;
+
+t.ContinueWith(delegate
+
+{
+
+    if (currentContext == null)
+
+        RestOfMethod();
+
+    else
+
+        currentContext.Post(delegate { RestOfMethod(); }, null);
+
+}, TaskScheduler.Current);
