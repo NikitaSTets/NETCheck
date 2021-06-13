@@ -6,12 +6,12 @@ namespace Multi_threading
 {
     public class WebClientAsync : IWebClientAsync
     {
-        private readonly WebClient _multiThreadingWebClient;
+        private readonly WebClient _webClient;
 
 
         public WebClientAsync()
         {
-            _multiThreadingWebClient = new WebClient();
+            _webClient = new WebClient();
         }
 
 
@@ -21,12 +21,12 @@ namespace Multi_threading
             
             cancellationToken.Register(() =>
             {
-                _multiThreadingWebClient.CancelDownload();
+                _webClient.CancelDownload();
             });
 
             var thread = new Thread(() =>
             {
-                _multiThreadingWebClient.StartDownload(url, result =>
+                _webClient.StartDownload(url, result =>
                 {
                     if (result.IsCancelled)
                     {
