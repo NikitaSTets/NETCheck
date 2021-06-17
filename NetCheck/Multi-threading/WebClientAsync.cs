@@ -17,14 +17,14 @@ namespace Multi_threading
 
         public async Task<string> DownloadAsync(string url, CancellationToken cancellationToken)
         {
-            var taskCompletionSource = new TaskCompletionSource<string>(); 
-            
+            var taskCompletionSource = new TaskCompletionSource<string>();
+
             cancellationToken.Register(() =>
             {
                 _webClient.CancelDownload();
             });
 
-            var thread = new Thread(() =>
+            var task = new Task(() =>
             {
                 _webClient.StartDownload(url, result =>
                 {
@@ -42,9 +42,9 @@ namespace Multi_threading
 
                     taskCompletionSource.TrySetResult(result.Content);
                 });
-            });
+            }, cancellationToken);
 
-            thread.Start();
+            task.Start();
 
             return await taskCompletionSource.Task;
         }
