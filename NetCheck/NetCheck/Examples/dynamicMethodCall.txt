@@ -1,0 +1,22 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+
+namespace NetCheck
+{
+    internal class Program
+    {
+        public static void Main(string[] args)
+        {
+            var reflectionDLLPath = Path.GetFullPath($"{Directory.GetCurrentDirectory()}..\\..\\..\\..\\..\\Reflection\\bin\\Debug\\Reflection.dll");
+            var reflectionDLL = Assembly.LoadFile(reflectionDLLPath);
+            var testClass1 = reflectionDLL.GetExportedTypes().First(c => c.Name == "TestClass1");
+
+            var instance = Activator.CreateInstance(testClass1);
+
+            var method = testClass1.GetMethod("Method");
+            method.Invoke(instance, null);
+        }
+    }
+}

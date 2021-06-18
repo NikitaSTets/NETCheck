@@ -6,7 +6,7 @@ namespace Reflection
     {
         public void Method()
         {
-            Console.WriteLine("Test Method Class 2");
+            Console.WriteLine("Test Method Class1");
         }
     }
 }

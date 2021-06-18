@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,36 +16,29 @@ namespace Multi_threading
         }
 
 
-        public async Task<string> DownloadAsync(string url, CancellationToken cancellationToken)
+        public async Task<string> DownloadAsync(Uri uri, CancellationToken cancellationToken)
         {
             var taskCompletionSource = new TaskCompletionSource<string>();
-
-            cancellationToken.Register(() =>
+            var registration = cancellationToken.Register(() =>
             {
-                _webClient.CancelDownload();
+                _webClient.CancelAsync();
+                taskCompletionSource.TrySetCanceled();
             });
 
-            var task = new Task(() =>
+            try
             {
-                _webClient.StartDownload(url, result =>
+                _webClient.DownloadStringCompleted += (sender, args) =>
                 {
-                    if (result.IsCancelled)
-                    {
-                        Console.WriteLine("Canceled");
-                        taskCompletionSource.TrySetCanceled();
-                    }
+                    registration.Dispose();
+                    taskCompletionSource.TrySetResult("Content");
+                };
 
-                    if (result.Error != null)
-                    {
-                        Console.WriteLine("Error");
-                        taskCompletionSource.TrySetException(result.Error);
-                    }
-
-                    taskCompletionSource.TrySetResult(result.Content);
-                });
-            }, cancellationToken);
-
-            task.Start();
+                _webClient.DownloadStringAsync(uri);
+            }
+            catch (Exception ex)
+            {
+                taskCompletionSource.TrySetException(ex);
+            }
 
             return await taskCompletionSource.Task;
         }

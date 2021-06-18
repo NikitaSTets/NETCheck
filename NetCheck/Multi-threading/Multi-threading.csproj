@@ -43,10 +43,8 @@
   <ItemGroup>
     <Compile Include="WebClientAsync.cs" />
     <Compile Include="DownloadResult.cs" />
-    <Compile Include="IWebClient.cs" />
     <Compile Include="IWebClientAsync.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

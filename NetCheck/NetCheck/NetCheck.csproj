@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Multi-threading\Multi-threading.csproj" />
-    <ProjectReference Include="..\Reflection\Reflection.csproj" />
   </ItemGroup>
 
 </Project>
