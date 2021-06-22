@@ -24,7 +24,7 @@ namespace NetCheck
                             {
                                 cancellationTokenSource.CancelAfter(5000);
 
-                                var content = await webClientAsync.DownloadAsync("http://download.xs4all.nl/test/2gb.bin", cancellationTokenSource.Token);
+                                var content = await webClientAsync.DownloadAsync(new Uri("http://download.xs4all.nl/test/2gb.bin"), cancellationTokenSource.Token);
                                 Console.WriteLine(content);
                             }
                             catch (Exception e)
@@ -38,7 +38,7 @@ namespace NetCheck
                         {
                             try
                             {
-                                var content = await webClientAsync.DownloadAsync("http://lololol/failedurl", cancellationTokenSource.Token);
+                                var content = await webClientAsync.DownloadAsync(new Uri("http://lololol/failedurl"), cancellationTokenSource.Token);
                                 Console.WriteLine(content);
                             }
                             catch (Exception e)
@@ -50,7 +50,7 @@ namespace NetCheck
                         }
                     case '3':
                         {
-                            var content = await webClientAsync.DownloadAsync("http://mirror.widexs.nl/ftp/pub/speed/1mb.bin", cancellationTokenSource.Token);
+                            var content = await webClientAsync.DownloadAsync(new Uri("http://mirror.widexs.nl/ftp/pub/speed/1mb.bin"), cancellationTokenSource.Token);
                             Console.WriteLine(content);
 
                             break;

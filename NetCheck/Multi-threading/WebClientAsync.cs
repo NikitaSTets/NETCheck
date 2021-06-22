@@ -19,28 +19,28 @@ namespace Multi_threading
         public async Task<string> DownloadAsync(Uri uri, CancellationToken cancellationToken)
         {
             var taskCompletionSource = new TaskCompletionSource<string>();
-            var registration = cancellationToken.Register(() =>
+            using (cancellationToken.Register(() =>
             {
                 _webClient.CancelAsync();
                 taskCompletionSource.TrySetCanceled();
-            });
-
-            try
+            }))
             {
-                _webClient.DownloadStringCompleted += (sender, args) =>
+                try
                 {
-                    registration.Dispose();
-                    taskCompletionSource.TrySetResult("Content");
-                };
+                    _webClient.DownloadStringCompleted += (sender, args) =>
+                    {
+                        taskCompletionSource.TrySetResult("Content");
+                    };
 
-                _webClient.DownloadStringAsync(uri);
-            }
-            catch (Exception ex)
-            {
-                taskCompletionSource.TrySetException(ex);
-            }
+                    _webClient.DownloadStringAsync(uri);
+                }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.TrySetException(ex);
+                }
 
-            return await taskCompletionSource.Task;
+                return await taskCompletionSource.Task;
+            }
         }
     }
 }
