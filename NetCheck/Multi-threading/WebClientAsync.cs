@@ -7,39 +7,41 @@ namespace Multi_threading
 {
     public class WebClientAsync : IWebClientAsync
     {
-        private readonly WebClient _webClient;
-
-
-        public WebClientAsync()
-        {
-            _webClient = new WebClient();
-        }
-
-
         public async Task<string> DownloadAsync(Uri uri, CancellationToken cancellationToken)
         {
             var taskCompletionSource = new TaskCompletionSource<string>();
-            using (cancellationToken.Register(() =>
+
+            using (var webClient = new WebClient())
             {
-                _webClient.CancelAsync();
-                taskCompletionSource.TrySetCanceled();
-            }))
-            {
-                try
+                using (cancellationToken.Register(webClient.CancelAsync))
                 {
-                    _webClient.DownloadStringCompleted += (sender, args) =>
+                    try
                     {
-                        taskCompletionSource.TrySetResult("Content");
-                    };
+                        webClient.DownloadStringCompleted += (sender, args) =>
+                        {
+                            if (args.Cancelled)
+                            {
+                                taskCompletionSource.TrySetCanceled();
+                            }
+                            else if (args.Error != null)
+                            {
+                                taskCompletionSource.TrySetException(args.Error);
+                            }
+                            else
+                            {
+                                taskCompletionSource.TrySetResult(args.Result);
+                            }
+                        };
 
-                    _webClient.DownloadStringAsync(uri);
-                }
-                catch (Exception ex)
-                {
-                    taskCompletionSource.TrySetException(ex);
-                }
+                        webClient.DownloadStringAsync(uri);
+                    }
+                    catch (Exception ex)
+                    {
+                        taskCompletionSource.TrySetException(ex);
+                    }
 
-                return await taskCompletionSource.Task;
+                    return await taskCompletionSource.Task;
+                }
             }
         }
     }
