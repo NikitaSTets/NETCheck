@@ -7,41 +7,40 @@ namespace Multi_threading
 {
     public class WebClientAsync : IWebClientAsync
     {
-        public async Task<string> DownloadAsync(Uri uri, CancellationToken cancellationToken)
+        public Task<string> DownloadAsync(Uri uri, CancellationToken cancellationToken)
         {
             var taskCompletionSource = new TaskCompletionSource<string>();
 
-            using (var webClient = new WebClient())
+            var webClient = new WebClient();
+
+            using (cancellationToken.Register(() => webClient.CancelAsync()))
             {
-                using (cancellationToken.Register(webClient.CancelAsync))
+                try
                 {
-                    try
+                    webClient.DownloadStringCompleted += (sender, args) =>
                     {
-                        webClient.DownloadStringCompleted += (sender, args) =>
+                        if (args.Cancelled)
                         {
-                            if (args.Cancelled)
-                            {
-                                taskCompletionSource.TrySetCanceled();
-                            }
-                            else if (args.Error != null)
-                            {
-                                taskCompletionSource.TrySetException(args.Error);
-                            }
-                            else
-                            {
-                                taskCompletionSource.TrySetResult(args.Result);
-                            }
-                        };
+                            taskCompletionSource.TrySetCanceled();
+                        }
+                        else if (args.Error != null)
+                        {
+                            taskCompletionSource.TrySetException(args.Error);
+                        }
+                        else
+                        {
+                            taskCompletionSource.TrySetResult(args.Result);
+                        }
+                    };
 
-                        webClient.DownloadStringAsync(uri);
-                    }
-                    catch (Exception ex)
-                    {
-                        taskCompletionSource.TrySetException(ex);
-                    }
-
-                    return await taskCompletionSource.Task;
+                    webClient.DownloadStringAsync(uri);
                 }
+                catch (Exception ex)
+                {
+                    taskCompletionSource.TrySetException(ex);
+                }
+
+                return taskCompletionSource.Task;
             }
         }
     }

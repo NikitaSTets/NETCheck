@@ -12,9 +12,9 @@ namespace NetCheck
             var cancellationTokenSource = new CancellationTokenSource();
             var webClientAsync = new WebClientAsync();
             cancellationTokenSource.CancelAfter(5000);
-            var content = await webClientAsync.DownloadAsync(new Uri("http://download.xs4all.nl/test/2gb.bin"), cancellationTokenSource.Token);
+            var content = await webClientAsync.DownloadAsync(new Uri("https://ftp.byfly.by/test/500Mb"), cancellationTokenSource.Token);
 
-            Console.WriteLine(content);
+            Console.WriteLine(content.Length);
         }
     }
 }
